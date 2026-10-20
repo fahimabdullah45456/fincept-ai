@@ -4,46 +4,11 @@ Desktop implementation of the original Figma Authentication, full Overview, func
 
 **Implemented: Authentication, shared sidebar/topbar, Overview, Transactions, Wallets, Budgets, Financial Goals, Insights, the AI Assistant and Planner.** Successful authentication opens the preserved confirmation route; click **Open Overview** to view your financial snapshot. New accounts have empty live data; explicitly choose **Explore sample data** to inspect the isolated development sample. Transactions supports real creation, editing, confirmation deletion, transfers/fees, categories, filters and CSV. Wallets supports real account creation/editing, active summaries, grid/list search/filter/sort, explicit Add Money accounting, reviewed atomic transfers, details and archive/restore. Budgets supports persistent category plans, shared expense allocation with Overview, period browsing, summaries, risk alerts, search/filters/sorting, real expense history and confirmed deletion that preserves transactions. See `docs/BUDGETS.md` for explicit-period and threshold rules; automatic recurrence is not implemented. Financial Goals adds persistent plans, active-only summaries, search/filter/sort, pause/resume, retained history and reviewed wallet allocations/external deposits. See `docs/GOALS.md` for accounting and legacy-funding limitations. Insights adds real period analytics, category drill-down and safe CSV export. The AI Assistant adds persistent owned conversations, grounded financial context, server-side OpenAI integration, safe retries and honest missing-configuration states; no AI credentials were configured for this delivery. Planner adds real calendar/task CRUD, date-correct navigation, occasion plans and canonical reviewed savings contributions. See `docs/PLANNER.md` for ownership, date/time, summaries, migration v9 and unavailable reminders. Debt & Loans and Financial Hub remain placeholders. This code was created in an isolated development workspace; it has not been installed on your PC or deployed.
 
-## Requirements
-
-- Node.js 22.12+ (Node 24 was used for verification)
-- Python 3.11+ (Python 3.13 was used for verification)
-- Two terminals, both initially opened in the extracted `fincept-ai` folder
-
-## Run locally
-
-### Terminal 1 — backend
-
-```sh
-cd backend
-python -m venv .venv
-```
-
-Activate the virtual environment:
-
-- Windows PowerShell: `.\.venv\Scripts\Activate.ps1`
-- Windows Command Prompt: `.venv\Scripts\activate.bat`
-- macOS/Linux: `source .venv/bin/activate`
-
-Then:
-
-```sh
-python -m pip install -r requirements-dev.txt
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-A development SQLite database is initialized automatically at `backend/data/fincept.sqlite3`. No pre-created account is shipped. Register your own test account through the app. Use disposable test credentials during development.
-
-### Terminal 2 — frontend
-
-```sh
-npm ci
-npm run dev
-```
-
-Open **http://127.0.0.1:5173/sign-up** or **http://127.0.0.1:5173/sign-in**.
-
 ## Run with Docker
+
+Docker is the only required local runtime. Node.js, npm, Python, pip,
+FastAPI, and Nginx are installed and run inside the containers; they do not
+need to be installed on the host.
 
 Docker Compose builds the frontend and backend, serves the compiled SPA through
 Nginx, proxies `/api` to FastAPI, and persists the SQLite database in the
@@ -64,34 +29,13 @@ are suitable for local Docker use. For an HTTPS production deployment, set
 `FRONTEND_ORIGINS` and `TRUSTED_HOSTS` values behind a TLS-terminating proxy.
 Keep `OPENAI_API_KEY` server-side and never add it to Vite variables.
 
-### Render deployment
+No pre-created account is shipped. Register your own test account through the
+app. Use disposable test credentials during development.
 
-When deploying the frontend and backend as separate Render web services, the
-Compose hostname `backend` does not exist on Render. Set the frontend service
-environment variable below to the backend service's public URL, without a
-trailing slash:
-
-```text
-BACKEND_URL=https://your-backend-service.onrender.com
-```
-
-The frontend image uses this value when Nginx starts, so `/api/*` requests are
-proxied to the Render backend without requiring a rebuild. On the backend
-service, set:
-
-```text
-APP_ENV=production
-COOKIE_SECURE=true
-FRONTEND_ORIGINS=https://your-frontend-service.onrender.com
-TRUSTED_HOSTS=your-backend-service.onrender.com
-```
-
-Enable HTTPS on both services and use the backend's `/api/health` endpoint for
-the backend health check. If frontend and backend are deployed as one service,
-keep the default `BACKEND_URL=http://backend:8000` only when that hostname is
-provided by the service network.
-
-The Vite development server proxies `/api` to the backend on port 8000. Environment examples are included; local defaults work without copying them. To customize them, copy root `.env.example` to `.env.local`, and `backend/.env.example` to `backend/.env`. Restart servers after configuration changes.
+The production container serves the compiled frontend and proxies `/api`
+directly to FastAPI. There is no host-side frontend or backend server to start.
+Set deployment values in the Compose environment or the platform's container
+environment settings; do not copy secrets into the image.
 
 ## Authentication behavior
 
@@ -112,35 +56,30 @@ The Vite development server proxies `/api` to the backend on port 8000. Environm
 - Desktop reference is 1440 × 980; smaller windows scroll. No mobile or tablet layouts are included.
 - Some original Figma colors do not meet normal-text WCAG AA contrast. They were preserved for design fidelity; obtain approval for a contrast adjustment before claiming AA compliance.
 - Production needs HTTPS, `APP_ENV=production`, `COOKIE_SECURE=true`, exact `FRONTEND_ORIGINS`, and `TRUSTED_HOSTS` for the actual API host. Prefer same-origin frontend/API hosting. Arbitrary cross-site cookie hosting is not configured.
-- Production serving must proxy `/api` to FastAPI and fall back to `index.html` for frontend routes. The Vite development proxy is not a production server. `npm run preview` is a static preview and does not configure that API proxy.
+- Production serving must proxy `/api` to FastAPI and fall back to `index.html` for frontend routes. The Docker Nginx container provides both behaviors.
 - Review deployment security, backups, database permissions, session cleanup, rate limiting and operational monitoring before launch. No email verification, MFA, or external identity provider is implemented in this segment.
 
 ## Checks
 
-Frontend unit/component tests and production build:
+Build and start the complete application through Docker:
 
 ```sh
-npm test
-npm run build
+docker compose build
+docker compose up -d
+docker compose ps
 ```
 
-Backend tests (activate its virtual environment first):
+Verify the running services:
 
 ```sh
-cd backend
-python -m pytest -q
+curl http://localhost:8080/health
+curl http://localhost:8080/api/health
 ```
 
-Browser tests (from the project root, with the backend virtual environment active):
-
-```sh
-npx playwright install chromium
-npm run test:e2e
-```
-
-Browser tests start isolated servers on ports 5180 and 8090 and use a separate database under `test-results/`. These ports must be free. `PYTHON_BIN` can specify the virtual environment's Python executable if it is not on PATH. `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` optionally selects a system Chromium.
-
-Verification: **49 frontend + 31 backend + 46 browser tests passed (126 total); production build passed.** Exact executed commands and boundaries are recorded in `docs/IMPLEMENTATION_STATUS.md`. Backend testing emits one upstream Starlette/httpx deprecation warning. See `docs/IMPLEMENTATION_STATUS.md` for evidence, file inventory, endpoint list, and remaining configuration.
+View container logs with `docker compose logs -f`. Stop the stack with
+`docker compose down`. The application source still contains its frontend and
+backend build manifests because the images need them during Docker builds; no
+host-side npm/Python workflow is required.
 
 
 ## Vector asset correction
@@ -149,12 +88,20 @@ Authentication uses the original SVG logo mark with a live Manrope wordmark and 
 
 Both authentication pages were tested and visually reviewed at native Chromium browser zoom 100%, 125%, and 150%. At higher zoom the existing desktop-only minimum canvas scrolls rather than switching to a mobile layout. Captures and machine-readable checks are in `docs/asset-correction-zooms/`.
 
-To repeat native zoom verification, start the frontend and backend, then run `node tests/verify-asset-zoom.mjs`. This uses a local test-only Chromium extension and requires a Chromium build supporting unpacked extensions; `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` can select the executable. The extension is not part of the application or its production build.
+Native zoom verification is a development QA workflow and is not required to
+run the Docker application.
 
 
 ## Combined project package
 
-This ZIP already contains the vector-corrected Authentication implementation and the sidebar integration. No manual file merging is required. Start with START_HERE.md. The existing backend/frontend commands remain unchanged; no new dependency or provider configuration is required for the sidebar. The full read-side Overview is included, with real authenticated read APIs and explicit, isolated sample data. The Transactions segment shares the same canonical database, privacy state and layout. Other financial segments remain labeled integration placeholders. See docs/OVERVIEW.md and docs/TRANSACTIONS.md for accounting and scope. Back up existing databases before the additive v3 upgrade.
+This ZIP already contains the vector-corrected Authentication implementation and the sidebar integration. No manual file merging is required. Start with START_HERE.md. The Docker Compose workflow is the supported way to run the complete package;
+no manual frontend/backend startup or dependency installation is required. The
+full read-side Overview is included, with real authenticated read APIs and
+explicit, isolated sample data. The Transactions segment shares the same
+canonical database, privacy state and layout. Other financial segments remain
+labeled integration placeholders. See docs/OVERVIEW.md and
+docs/TRANSACTIONS.md for accounting and scope. Back up existing databases
+before the additive v3 upgrade.
 
 ## Calendar/category correction
 
@@ -178,7 +125,13 @@ Open **Financial Goals** in the shared sidebar. Create a plan at zero saved, the
 
 Open `/ai-assistant` after signing in. Read `docs/ASSISTANT.md` for the inspected Figma component map, provider setup, schema v8, endpoints, persistence, read-only financial grounding, privacy and tested limits; see `docs/ASSISTANT_FILES.md` for the file inventory. The assistant works in the existing shell without rebuilding other pages. Conversation history is in SQLite, not browser-only state.
 
-For actual model-generated replies, set **server-side only** `AI_PROVIDER=openai`, `AI_MODEL` to an enabled compatible Chat Completions model, and `OPENAI_API_KEY` in `backend/.env`, then restart the backend. Never use a `VITE_` credential. No provider/model allowance is assumed. Without configuration, saved history and all other finance pages remain usable; send returns a clear unavailable error rather than a fake reply.
+For actual model-generated replies, set **server-side only**
+`AI_PROVIDER=openai`, `AI_MODEL` to an enabled compatible Chat Completions
+model, and `OPENAI_API_KEY` in the backend container environment, then
+restart the stack. Never use a `VITE_` credential. No provider/model
+allowance is assumed. Without configuration, saved history and all other
+finance pages remain usable; send returns a clear unavailable error rather
+than a fake reply.
 
 The assistant is informational/read-only, not a financial-action agent. It sends bounded relevant account summaries and limited completed conversation context to the configured provider. The shared privacy toggle conceals structured money and all free-form chat/history text; this is display privacy, not a change to stored data or provider context. Review provider terms/retention and user disclosures before deployment. No streaming, cancellation, bank connection or financial writes are claimed.
 
