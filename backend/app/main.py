@@ -136,7 +136,7 @@ def create_app(settings: Settings | None = None, *, assistant_provider=None):
         host.strip()
         for host in os.getenv(
             'TRUSTED_HOSTS',
-            'fincept-ai-backend.onrender.com,localhost,127.0.0.1,testserver'
+            'localhost,127.0.0.1,testserver'
         ).split(',')
         if host.strip()
     ]

@@ -502,3 +502,5 @@ Docs: DEBT_LOANS.md, FINANCIAL_HUB.md, DEBT_HUB_DESIGN_MAP.md, assets provenance
   install or start npm, Node.js, Python, pip, FastAPI, or Uvicorn manually.
 - Restricted Nginx template substitution to `BACKEND_URL` so normal Nginx
   runtime variables are preserved and the frontend container starts reliably.
+- Added `render.yaml` for separate Docker web services, production cookie/CORS
+  settings, backend health checks, and a persistent SQLite disk.

@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: fincept-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    autoDeploy: true
+    disk:
+      name: fincept-api-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /app/data/fincept.sqlite3
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: FRONTEND_ORIGINS
+        value: https://fincept-web.onrender.com
+      - key: TRUSTED_HOSTS
+        value: fincept-api.onrender.com
+      - key: SESSION_HOURS
+        value: "8"
+      - key: REMEMBER_DAYS
+        value: "30"
+      - key: AI_PROVIDER
+        sync: false
+      - key: AI_MODEL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    name: fincept-web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: BACKEND_URL
+        value: https://fincept-api.onrender.com

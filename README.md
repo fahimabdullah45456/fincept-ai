@@ -37,6 +37,27 @@ directly to FastAPI. There is no host-side frontend or backend server to start.
 Set deployment values in the Compose environment or the platform's container
 environment settings; do not copy secrets into the image.
 
+## Deploy to Render
+
+The repository includes [render.yaml](C:/Users/Preetthee/Videos/Fintech%20Tamim/fincept-ai/render.yaml)
+for a two-service Docker deployment:
+
+1. In Render, choose **New > Blueprint** and connect this repository.
+2. Render creates `fincept-api` and `fincept-web` from their Dockerfiles.
+3. Confirm the generated public hostnames match those names:
+   `fincept-api.onrender.com` and `fincept-web.onrender.com`.
+4. If you use different service names or a custom frontend domain, update
+   `FRONTEND_ORIGINS`, `TRUSTED_HOSTS`, and `BACKEND_URL` in the Render
+   environment settings before the first login.
+5. Set `AI_PROVIDER`, `AI_MODEL`, and `OPENAI_API_KEY` only if the assistant
+   provider is being enabled. These values are marked secret in the Blueprint.
+
+The backend has a persistent one-GB disk mounted at `/app/data`, where SQLite
+stores the application database. The frontend waits for no backend container
+hostname; Nginx proxies to the public backend URL configured by
+`BACKEND_URL`. Both services expose health checks at `/api/health` and
+`/health`, respectively.
+
 ## Authentication behavior
 
 - Registration requires a full name, valid email, matching passwords, and terms acceptance.
