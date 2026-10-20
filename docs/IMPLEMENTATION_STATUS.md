@@ -500,3 +500,5 @@ Docs: DEBT_LOANS.md, FINANCIAL_HUB.md, DEBT_HUB_DESIGN_MAP.md, assets provenance
   container environments where the backend hostname differs.
 - Updated the primary README workflow to be Docker-only: host users no longer
   install or start npm, Node.js, Python, pip, FastAPI, or Uvicorn manually.
+- Restricted Nginx template substitution to `BACKEND_URL` so normal Nginx
+  runtime variables are preserved and the frontend container starts reliably.
