@@ -132,7 +132,15 @@ def create_app(settings: Settings | None = None, *, assistant_provider=None):
                        allow_credentials=True, allow_methods=['GET','POST','PATCH','DELETE'],
                        allow_headers=['Content-Type','X-Fincept-Request'])
     # Set TRUSTED_HOSTS at deployment to the actual API host(s).
-    api.add_middleware(TrustedHostMiddleware, allowed_hosts=os.getenv('TRUSTED_HOSTS', 'localhost,127.0.0.1,testserver').split(','))
+    trusted_hosts = [
+        host.strip()
+        for host in os.getenv(
+            'TRUSTED_HOSTS',
+            'fincept-ai-backend.onrender.com,localhost,127.0.0.1,testserver'
+        ).split(',')
+        if host.strip()
+    ]
+    api.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
 
     @api.middleware('http')
     async def security_headers(request, call_next):
