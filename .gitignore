@@ -9,6 +9,7 @@ __pycache__/
 *.sqlite3
 *.sqlite3-*
 backend/data/
+docker-data/
 test-results/
 playwright-report/
 

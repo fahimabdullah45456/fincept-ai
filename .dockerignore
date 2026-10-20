@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.env
+.env.*
+backend/.venv
+backend/data
+__pycache__
+*.pyc
+*.sqlite3
+*.sqlite3-*
+test-results
+playwright-report
+graphify-out

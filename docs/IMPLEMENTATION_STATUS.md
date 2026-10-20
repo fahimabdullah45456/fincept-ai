@@ -487,3 +487,12 @@ Hierarchy, widths, surfaces, color, typography and original icons follow the ref
 Frontend: `src/features/debt/{Debts,DebtForms}.tsx`, `api.ts`; `src/features/hub/{Hub,ShoppingForms,CurrencyConverter}.tsx`, `api.ts`, `hub.test.ts`; `src/styles/debt-hub.css`; route/header wiring; minimal Wallets deep-link handling.
 Backend: `backend/app/debt/{schema,routes}.py`, `backend/app/hub/{routes,fx}.py`, main startup/router wiring; `backend/tests/test_debt_hub.py`. Shared schema-version test assertions advance to v10 without changing their business assertions.
 Docs: DEBT_LOANS.md, FINANCIAL_HUB.md, DEBT_HUB_DESIGN_MAP.md, assets provenance, architecture/status/setup notes and this evidence folder. No new runtime dependencies.
+## Docker deployment
+
+- Added a multi-stage frontend image that builds the Vite app and serves it
+  through Nginx with SPA fallback and `/api` proxying.
+- Added a FastAPI image with a non-root runtime user and a persistent SQLite
+  data volume.
+- Added `docker compose up --build` as the single-command local container
+  deployment. Docker validation is environment-dependent and should be run on
+  a host with Docker Engine/Compose available.

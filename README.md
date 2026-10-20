@@ -43,6 +43,27 @@ npm run dev
 
 Open **http://127.0.0.1:5173/sign-up** or **http://127.0.0.1:5173/sign-in**.
 
+## Run with Docker
+
+Docker Compose builds the frontend and backend, serves the compiled SPA through
+Nginx, proxies `/api` to FastAPI, and persists the SQLite database in the
+`fincept-data` volume:
+
+```sh
+docker compose up --build
+```
+
+Open **http://localhost:8080/sign-up** or **http://localhost:8080/sign-in**.
+Stop the stack with `docker compose down`; the named database volume is
+preserved. To remove the persisted database too, use
+`docker compose down -v`.
+
+Compose reads optional deployment values from a root `.env` file. The defaults
+are suitable for local Docker use. For an HTTPS production deployment, set
+`APP_ENV=production`, `COOKIE_SECURE=true`, and provide exact
+`FRONTEND_ORIGINS` and `TRUSTED_HOSTS` values behind a TLS-terminating proxy.
+Keep `OPENAI_API_KEY` server-side and never add it to Vite variables.
+
 The Vite development server proxies `/api` to the backend on port 8000. Environment examples are included; local defaults work without copying them. To customize them, copy root `.env.example` to `.env.local`, and `backend/.env.example` to `backend/.env`. Restart servers after configuration changes.
 
 ## Authentication behavior
