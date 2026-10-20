@@ -2,7 +2,7 @@
 
 Desktop implementation of the original Figma Authentication, full Overview, functional Transactions, Wallets, Budgets and Financial Goals screens, with the shared expandable sidebar. React + TypeScript + Vite frontend, shared CSS components, local Manrope fonts and Figma assets, and a working FastAPI + SQLite authentication backend.
 
-**Implemented: Authentication, shared sidebar/topbar, Overview, Transactions, Wallets, Budgets, Financial Goals, Insights, the AI Assistant and Planner.** Successful authentication opens the preserved confirmation route; click **Open Overview** to view your financial snapshot. New accounts have empty live data; explicitly choose **Explore sample data** to inspect the isolated development sample. Transactions supports real creation, editing, confirmation deletion, transfers/fees, categories, filters and CSV. Wallets supports real account creation/editing, active summaries, grid/list search/filter/sort, explicit Add Money accounting, reviewed atomic transfers, details and archive/restore. Budgets supports persistent category plans, shared expense allocation with Overview, period browsing, summaries, risk alerts, search/filters/sorting, real expense history and confirmed deletion that preserves transactions. See `docs/BUDGETS.md` for explicit-period and threshold rules; automatic recurrence is not implemented. Financial Goals adds persistent plans, active-only summaries, search/filter/sort, pause/resume, retained history and reviewed wallet allocations/external deposits. See `docs/GOALS.md` for accounting and legacy-funding limitations. Insights adds real period analytics, category drill-down and safe CSV export. The AI Assistant adds persistent owned conversations, grounded financial context, server-side OpenAI integration, safe retries and honest missing-configuration states; no AI credentials were configured for this delivery. Planner adds real calendar/task CRUD, date-correct navigation, occasion plans and canonical reviewed savings contributions. See `docs/PLANNER.md` for ownership, date/time, summaries, migration v9 and unavailable reminders. Debt & Loans and Financial Hub remain placeholders. This code was created in an isolated development workspace; it has not been installed on your PC or deployed.
+**Implemented: Authentication, shared sidebar/topbar, Overview, Transactions, Wallets, Budgets, Financial Goals, Insights, the AI Assistant and Planner.** Successful authentication opens the preserved confirmation route; click **Open Overview** to view your financial snapshot. New accounts have empty live data; explicitly choose **Explore sample data** to inspect the isolated development sample. Transactions supports real creation, editing, confirmation deletion, transfers/fees, categories, filters and CSV. Wallets supports real account creation/editing, active summaries, grid/list search/filter/sort, explicit Add Money accounting, reviewed atomic transfers, details and archive/restore. Budgets supports persistent category plans, shared expense allocation with Overview, period browsing, summaries, risk alerts, search/filters/sorting, real expense history and confirmed deletion that preserves transactions. See `docs/BUDGETS.md` for explicit-period and threshold rules; automatic recurrence is not implemented. Financial Goals adds persistent plans, active-only summaries, search/filter/sort, pause/resume, retained history and reviewed wallet allocations/external deposits. See `docs/GOALS.md` for accounting and legacy-funding limitations. Insights adds real period analytics, category drill-down and safe CSV export. The AI Assistant adds persistent owned conversations, grounded financial context, server-side OpenAI integration, safe retries and honest missing-configuration states; no AI credentials were configured for this delivery. Planner adds real calendar/task CRUD, date-correct navigation, occasion plans and canonical reviewed savings contributions. See `docs/PLANNER.md` for ownership, date/time, summaries, migration v9 and unavailable reminders. Debt & Loans and Financial Hub remain placeholders. The application is packaged for Docker and configured for the Render Blueprint deployment described below.
 
 ## Run with Docker
 
@@ -44,8 +44,9 @@ for a two-service Docker deployment:
 
 1. In Render, choose **New > Blueprint** and connect this repository.
 2. Render creates `fincept-api` and `fincept-web` from their Dockerfiles.
-3. Confirm the generated public hostnames match those names:
-   `fincept-api.onrender.com` and `fincept-web.onrender.com`.
+3. The configured frontend URL is
+   `https://fincept-ai-unwl.onrender.com`; the backend URL is
+   `https://fincept-api.onrender.com`.
 4. If you use different service names or a custom frontend domain, update
    `FRONTEND_ORIGINS`, `TRUSTED_HOSTS`, and `BACKEND_URL` in the Render
    environment settings before the first login.
@@ -56,7 +57,8 @@ The backend has a persistent one-GB disk mounted at `/app/data`, where SQLite
 stores the application database. The frontend waits for no backend container
 hostname; Nginx proxies to the public backend URL configured by
 `BACKEND_URL`. Both services expose health checks at `/api/health` and
-`/health`, respectively.
+`/health`, respectively. The Nginx proxy sends TLS SNI for HTTPS backend URLs,
+which is required by hosted HTTPS services.
 
 ## Authentication behavior
 

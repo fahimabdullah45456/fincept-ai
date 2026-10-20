@@ -504,3 +504,5 @@ Docs: DEBT_LOANS.md, FINANCIAL_HUB.md, DEBT_HUB_DESIGN_MAP.md, assets provenance
   runtime variables are preserved and the frontend container starts reliably.
 - Added `render.yaml` for separate Docker web services, production cookie/CORS
   settings, backend health checks, and a persistent SQLite disk.
+- Enabled TLS SNI for Nginx proxying so HTTPS backend service URLs work when
+  the frontend and API run as separate hosted containers.

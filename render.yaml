@@ -19,7 +19,7 @@ services:
       - key: COOKIE_SECURE
         value: "true"
       - key: FRONTEND_ORIGINS
-        value: https://fincept-web.onrender.com
+        value: https://fincept-ai-unwl.onrender.com
       - key: TRUSTED_HOSTS
         value: fincept-api.onrender.com
       - key: SESSION_HOURS
