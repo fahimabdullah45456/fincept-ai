@@ -64,6 +64,33 @@ are suitable for local Docker use. For an HTTPS production deployment, set
 `FRONTEND_ORIGINS` and `TRUSTED_HOSTS` values behind a TLS-terminating proxy.
 Keep `OPENAI_API_KEY` server-side and never add it to Vite variables.
 
+### Render deployment
+
+When deploying the frontend and backend as separate Render web services, the
+Compose hostname `backend` does not exist on Render. Set the frontend service
+environment variable below to the backend service's public URL, without a
+trailing slash:
+
+```text
+BACKEND_URL=https://your-backend-service.onrender.com
+```
+
+The frontend image uses this value when Nginx starts, so `/api/*` requests are
+proxied to the Render backend without requiring a rebuild. On the backend
+service, set:
+
+```text
+APP_ENV=production
+COOKIE_SECURE=true
+FRONTEND_ORIGINS=https://your-frontend-service.onrender.com
+TRUSTED_HOSTS=your-backend-service.onrender.com
+```
+
+Enable HTTPS on both services and use the backend's `/api/health` endpoint for
+the backend health check. If frontend and backend are deployed as one service,
+keep the default `BACKEND_URL=http://backend:8000` only when that hostname is
+provided by the service network.
+
 The Vite development server proxies `/api` to the backend on port 8000. Environment examples are included; local defaults work without copying them. To customize them, copy root `.env.example` to `.env.local`, and `backend/.env.example` to `backend/.env`. Restart servers after configuration changes.
 
 ## Authentication behavior

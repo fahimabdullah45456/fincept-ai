@@ -496,3 +496,5 @@ Docs: DEBT_LOANS.md, FINANCIAL_HUB.md, DEBT_HUB_DESIGN_MAP.md, assets provenance
 - Added `docker compose up --build` as the single-command local container
   deployment. Docker validation is environment-dependent and should be run on
   a host with Docker Engine/Compose available.
+- Made the Nginx backend upstream configurable through `BACKEND_URL`, which is
+  required when frontend and backend run as separate Render services.
